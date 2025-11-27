@@ -1,6 +1,11 @@
 // model/User.js
 const mongoose = require('mongoose');
 
+function generateRandomTag() {
+    // This generates a random 4-digit number (e.g., 4821)
+    return Math.floor(1000 + Math.random() * 9000).toString();
+}
+
 const UserSchema = new mongoose.Schema({
     // Authentication Credentials
     username: {
@@ -52,5 +57,6 @@ const UserSchema = new mongoose.Schema({
         default: 'https://placehold.co/80x80/6b7280/ffffff?text=U'
     }
 });
+
 
 module.exports = mongoose.model('User', UserSchema);
