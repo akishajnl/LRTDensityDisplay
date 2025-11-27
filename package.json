@@ -1,0 +1,26 @@
+{
+  "name": "africa_borromeo_galang_cbapdev-phase-1-submission",
+  "version": "1.0.0",
+  "description": "This is our phase 2 iteration",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "scripts.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "hbs": "^4.2.0",
+    "moment": "^2.30.1",
+    "mongodb": "^7.0.0",
+    "mongoose": "^8.19.3",
+    "multer": "^2.0.2",
+    "node": "^25.1.0",
+    "server.js": "^1.0.0",
+    "sharp": "^0.34.5"
+  }
+}
