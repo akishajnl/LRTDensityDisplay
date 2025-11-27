@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LRT Density - User Profile</title>
-
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="/styles.css">
@@ -12,15 +12,15 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         
-        /* Tailwind Configuration: Extending the default theme with app-specific colors */
+        /* extending Tailwind config to add custom colors specific to the app theme */
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'primary': 'var(--color-primary)',   // Dynamic colors from CSS variables
+                        'primary': 'var(--color-primary)',
                         'secondary': 'var(--color-secondary)',
                         'accent': 'var(--color-accent)',
-                        'light-crowd': 'var(--crowd-light)',       // Status colors for density/badges
+                        'light-crowd': 'var(--crowd-light)',
                         'moderate-crowd': 'var(--crowd-moderate)',
                         'heavy-crowd': 'var(--crowd-heavy)',
                     },
@@ -32,27 +32,27 @@
         }
 
         
-        /* Background gradient for the whole page */
+        /* Dark gradient background for the whole page */
         .profile-bg {
             background-color: var(--secondary-color);
             background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.9) 100%);
         }
         
-        /* The main container for the profile info */
+        /* The main container for user details */
         .profile-card {
-            background-color: #1f2937; /* Dark gray */
+            background-color: #1f2937;
             border: 1px solid rgba(75, 85, 99, 0.3);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         }
-
-        /* Special styling to make inputs look like regular text when editing */
+        
+        /* Helper class to make input fields look like normal text when editing tags/badges */
         .input-as-text {
             background-color: transparent;
             border: none;
             padding: 0;
             margin: 0;
             width: 100%;
-            display: none;
+            display: none; /* Hidden by default until edit mode is triggered */
         }
         .input-as-text:focus {
             outline: none;
@@ -64,7 +64,6 @@
 
     <header class="header-nav fixed w-full top-0"> 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
-            
             <div class="flex items-center space-x-4 flex-grow">
                 <div class="flex items-center space-x-1">
                     <div class="h-6 w-6 bg-orange-500 rounded-md"></div>
@@ -78,7 +77,7 @@
                     </button>
                 </div>
             </div>
-
+            
             <nav id="nav-links" class="flex items-center space-x-6">
                 <a href="/" class="text-white font-semibold hover:text-orange-400 transition-colors">HOME</a>
                 <a href="/about" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">ABOUT</a>
@@ -94,7 +93,6 @@
         </div>
     </header>
     
-   
     <main class="w-full max-w-xl px-4 pt-16">
 
         {{#if errorMessage}}
@@ -102,15 +100,18 @@
                 {{errorMessage}}
             </div>
         {{/if}}
-
-        <form id="profile-form" action="/profile" method="POST" class="profile-card rounded-xl mt-8 mb-12 text-white overflow-hidden shadow-2xl">
+        
+        <form id="profile-form" action="/profile" method="POST" enctype="multipart/form-data" class="profile-card rounded-xl mt-8 mb-12 text-white overflow-hidden shadow-2xl">
 
             <div class="h-28 bg-primary/70 relative">
                 <div class="absolute -bottom-10 left-4 group cursor-pointer" id="avatar-container">
-                    <img src="{{user.avatarUrl}}" alt="Profile Picture" class="w-20 h-20 rounded-full border-4 border-gray-900 shadow-lg" id="profile-avatar">
-                    <button type="button" onclick="changeAvatar()" id="edit-photo-button" class="absolute inset-0 w-full h-full bg-black/50 rounded-full flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100 hidden">
+                    <img src="{{user.avatarUrl}}" alt="Profile Picture" class="w-20 h-20 rounded-full border-4 border-gray-900 shadow-lg object-cover bg-gray-800" id="profile-avatar">
+                    
+                    <button type="button" onclick="document.getElementById('avatar-upload').click()" id="edit-photo-button" class="absolute inset-0 w-full h-full bg-black/50 rounded-full flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100 hidden">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.808-1.212A2 2 0 0110.428 5h3.144a2 2 0 011.664.89l.808 1.212a2 2 0 001.664.89H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     </button>
+
+                    <input type="file" id="avatar-upload" name="avatar" accept="image/*" class="hidden" onchange="previewImage(this)">
                 </div>
             </div>
 
@@ -176,10 +177,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize icons
+            // Render icons
             lucide.createIcons();
-
-            // Handle Search Bar "Enter" key
+            
+            // Listen for search enter key
             document.getElementById('search-input').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter' && this.value.trim() !== '') {
                     window.location.href = `/search?query=${encodeURIComponent(this.value.trim())}`;
@@ -187,35 +188,33 @@
             });
         });
 
-        // Basic logout function
+        // Simple logout handler
         function logout() {
             localStorage.clear(); 
             sessionStorage.clear();
-            window.location.href = '/'; 
+            window.location.href = '/';
         }
 
-        // Toggle Edit Mode 
-        // Switches the UI between "View Mode" (text) and "Edit Mode" (inputs)
+        // Core Edit Logic
+        // This function flips between "View Mode" and "Edit Mode"
+        // It works by toggling the 'hidden' CSS class on specific elements
         function toggleEditMode(isEditMode) {
-            // Select all elements meant for display only (text spans/divs)
             const displayElements = document.querySelectorAll('.display-element');
-            // Select all form inputs
+            // Select all input fields we want to toggle
             const inputElements = document.querySelectorAll('input[name="newUsername"], input[name="tag"], input[name="badge"], textarea[name="notes"], #edit-photo-button');
             
-            // Toggle Display Elements
+            // Hide display elements if editing
             displayElements.forEach(el => {
                 if (isEditMode) {
-                    el.classList.add('hidden'); // Hide text when editing
+                    el.classList.add('hidden');
                 } else {
-                    el.classList.remove('hidden'); // Show text when viewing
+                    el.classList.remove('hidden');
                 }
             });
-
-            // Toggle Input Elements
+            // Show input elements if editing
             inputElements.forEach(el => {
                 if (isEditMode) {
                     el.classList.remove('hidden');
-                    // Special handling for elements styling themselves as text
                     if (el.classList.contains('input-as-text')) {
                         el.style.display = 'block';
                     }
@@ -227,22 +226,31 @@
                 }
             });
             
-            // Toggle Main Username Display/Input specifically
+            // Toggle Main Username Display vs Input
             document.getElementById('username-display').classList.toggle('hidden', isEditMode);
             document.getElementById('username-input').classList.toggle('hidden', !isEditMode);
             
-            // Toggle Action Buttons
+            // Swap the buttons (Edit vs Save/Cancel)
             document.getElementById('edit-button').classList.toggle('hidden', isEditMode);
             document.getElementById('save-button').classList.toggle('hidden', !isEditMode);
             document.getElementById('cancel-button').classList.toggle('hidden', !isEditMode);
         }
-        
-        function clearSearch() { 
-            document.getElementById('search-input').value = ''; 
+
+        // Image Preview Logic
+        // When user selects a file, immediately show it on the <img> tag
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profile-avatar').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
         }
         
-        function changeAvatar() { 
-            alert('Feature not implemented in Phase 2, requires file upload logic.'); 
+        // Clear search helper
+        function clearSearch() { 
+            document.getElementById('search-input').value = '';
         }
     </script>
 </body>
