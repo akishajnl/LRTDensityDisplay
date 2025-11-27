@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{pageTitle}}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/styles.css">
+    
+    <style>
+        /* Tailwind Configuration: Custom colors for the project theme */
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': 'var(--color-primary)', 
+                        'secondary': 'var(--color-secondary)',
+                        'accent': 'var(--color-accent)', 
+                        'light-crowd': 'var(--crowd-light)',       // Green
+                        'moderate-crowd': 'var(--crowd-moderate)', // Yellow
+                        'heavy-crowd': 'var(--crowd-heavy)',       // Red
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen pt-20"> 
+    
+    <header class="header-nav fixed w-full top-0"> 
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3"> 
+            
+            <div class="flex items-center space-x-4 flex-grow">
+                <div class="flex items-center space-x-1">
+                    <div class="h-6 w-6 bg-orange-500 rounded-md"></div>
+                    <span class="text-xl font-extrabold text-orange-500">LRT</span>
+                </div>
+                <div class="relative flex items-center bg-gray-800 rounded-full px-4 py-2 max-w-sm w-full transition-all duration-300">
+                    <i data-lucide="search" class="w-5 h-5 text-gray-400 mr-2"></i>
+                    <input type="text" id="search-input" placeholder="SEARCH STATION" class="bg-transparent text-white placeholder-gray-400 focus:outline-none flex-grow text-sm">
+                    <button id="clear-search" class="text-gray-400 hover:text-white transition-colors" onclick="clearSearch()">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <nav id="nav-links" class="flex items-center space-x-6">
+                <a href="/" class="bg-green-500 hover:bg-green-600 text-black font-extrabold py-2 px-4 rounded-full transition-all duration-300 shadow-lg">HOME</a>
+                <a href="/about" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">ABOUT</a>
+                
+                {{#if user}}
+                    <a href="/profile" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">PROFILE</a>
+                    <a href="/logout" class="text-red-400 font-semibold hover:text-red-500 transition-colors hidden sm:block">LOG OUT</a>
+                {{else}}
+                    <a href="/login" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">LOG IN</a>
+                    <a href="/register" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">REGISTER</a>
+                {{/if}}
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto pt-24 pb-8 px-4 sm:px-6 lg:px-8">
+
+        {{#if errorMessage}}
+            <div class="bg-red-800 border border-red-600 text-white p-4 rounded-lg mb-6 text-center font-semibold">
+                {{errorMessage}}
+            </div>
+        {{/if}}
+
+        <div class="mb-12">
+            <div class="display-banner flex items-center justify-between p-4 mb-6 rounded-lg shadow-xl">
+                <div class="flex items-center space-x-3">
+                    <i data-lucide="train-front" class="w-8 h-8 text-white"></i>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-wide uppercase text-white">
+                        NORTHBOUND PLATFORM DENSITY DISPLAY
+                    </h1>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-6 h-6 bg-orange-500 rounded-full"></div>
+                    <div class="text-xs font-semibold text-white tracking-widest">LIGHT RAIL MANILA</div>
+                </div>
+            </div>
+            
+            <section class="line-map shadow-2xl">
+                <h2 class="text-xl sm:text-2xl font-black text-center text-white mb-6 uppercase tracking-wider">
+                    LIGHT RAIL TRANSIT - LINE 1
+                </h2>
+                
+                <div class="flex items-center justify-between w-full relative">
+                    <div id="lrt-line-visual-nb" class="flex items-center w-full overflow-x-scroll pb-4">
+                        {{#each stationsNB}}
+                            <div class="flex flex-col items-center justify-center relative group">
+                                <a href="/station/{{this.name}}">
+                                    <div class="station-marker crowd-{{this.crowdLevel}} shadow-lg" title="{{this.name}}: {{this.crowdLevel}} CROWD"></div>
+                                </a>
+                            </div>
+                            
+                            {{#if @last}}{{else}}
+                                <div class="line-link"></div>
+                            {{/if}}
+                        {{/each}}
+                    </div>
+                </div>
+
+                <div id="lrt-station-names-nb" class="flex items-start justify-between w-full overflow-x-scroll pt-2" style="height: 100px;">
+                    {{#each stationsNB}}
+                        <div class="flex-shrink-0">
+                            <a href="/station/{{this.name}}">
+                                <span class="station-name hover:text-orange-300 cursor-pointer">{{this.name}}</span>
+                            </a>
+                        </div>
+                    {{/each}}
+                </div>
+            </section>
+        </div>
+
+        <div class="display-banner flex items-center justify-between p-4 mb-6 rounded-lg shadow-xl">
+            <div class="flex items-center space-x-3">
+                <i data-lucide="train-front" class="w-8 h-8 text-white"></i>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-wide uppercase text-white">
+                    SOUTHBOUND PLATFORM DENSITY DISPLAY
+                </h1>
+            </div>
+            <div class="flex items-center space-x-2">
+                <div class="w-6 h-6 bg-orange-500 rounded-full"></div>
+                <div class="text-xs font-semibold text-white tracking-widest">LIGHT RAIL MANILA</div>
+            </div>
+        </div>
+        
+        <section class="line-map shadow-2xl">
+            <h2 class="text-xl sm:text-2xl font-black text-center text-white mb-6 uppercase tracking-wider">
+                LIGHT RAIL TRANSIT - LINE 1
+            </h2>
+            <div class="flex items-center justify-between w-full relative">
+                <div id="lrt-line-visual-sb" class="flex items-center w-full overflow-x-scroll pb-4">
+                    {{#each stationsSB}}
+                        <div class="flex flex-col items-center justify-center relative group">
+                            <a href="/station/{{this.name}}?platform=sb">
+                                <div class="station-marker crowd-{{this.crowdLevel}} shadow-lg" title="{{this.name}}: {{this.crowdLevel}} CROWD"></div>
+                            </a>
+                        </div>
+                        {{#if @last}}{{else}}
+                            <div class="line-link"></div>
+                        {{/if}}
+                    {{/each}}
+                </div>
+            </div>
+            <div id="lrt-station-names-sb" class="flex items-start justify-between w-full overflow-x-scroll pt-2" style="height: 100px;">
+                {{#each stationsSB}}
+                    <div class="flex-shrink-0">
+                        <a href="/station/{{this.name}}?platform=sb">
+                            <span class="station-name hover:text-orange-300 cursor-pointer">{{this.name}}</span>
+                        </a>
+                    </div>
+                {{/each}}
+            </div>
+        </section>
+
+        <section class="mt-12">
+            <h2 class="text-3xl font-extrabold mb-4 text-yellow-300">LEGEND:</h2>
+            <div class="flex flex-wrap gap-x-8 gap-y-2">
+                <div class="flex items-center space-x-3">
+                    <div class="w-4 h-4 rounded-full crowd-light shadow-md"></div>
+                    <span class="text-lg font-bold">LIGHT CROWD</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="w-4 h-4 rounded-full crowd-moderate shadow-md"></div>
+                    <span class="text-lg font-bold">MODERATE CROWD</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="w-4 h-4 rounded-full crowd-heavy shadow-md"></div>
+                    <span class="text-lg font-bold">HEAVY CROWD</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+        
+        // Clear Search Input Function
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+        }
+
+        // Search Bar Enter Key Listener
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.trim() !== '') {
+                window.location.href = `/search?query=${encodeURIComponent(this.value.trim())}`;
+            }
+        });
+    </script>
+</body>
+</html>

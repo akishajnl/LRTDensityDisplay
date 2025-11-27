@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LRT Density - About</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <link rel="stylesheet" href="/styles.css">
+    
+    <style>
+        /* Tailwind Configuration: 
+        */
+        tailwind.config = {
+            theme: {
+                 extend: {
+                    colors: {
+                        'primary': 'var(--color-primary)', 
+                        'secondary': 'var(--color-secondary)',
+                        'accent': 'var(--color-accent)', 
+                        'light-crowd': 'var(--crowd-light)',
+                        'moderate-crowd': 'var(--crowd-moderate)',
+                        'heavy-crowd': 'var(--crowd-heavy)',
+                   },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+           }
+           
+        /* Custom Card Styling */
+        .content-card {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);   
+        }
+    </style>
+</head>
+<body class="min-h-screen pt-20 flex flex-col items-center">
+
+    <header class="header-nav fixed w-full top-0"> 
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
+            
+            <div class="flex items-center space-x-4 flex-grow">
+                <div class="flex items-center space-x-1">
+                     <div class="h-6 w-6 bg-orange-500 rounded-md"></div>
+                    <span class="text-xl font-extrabold text-orange-500">LRT</span>
+                </div>
+
+                <div class="relative flex items-center bg-gray-800 rounded-full px-4 py-2 max-w-sm w-full transition-all duration-300">
+                    <i data-lucide="search" class="w-5 h-5 text-gray-400 mr-2"></i>
+                    <input type="text" id="search-input" placeholder="SEARCH STATION" class="bg-transparent text-white placeholder-gray-400 focus:outline-none flex-grow text-sm">
+                    <button id="clear-search" class="text-gray-400 hover:text-white transition-colors" onclick="clearSearch()">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                     </button>
+                </div>
+            </div>
+
+            <nav id="nav-links" class="flex items-center space-x-6">
+                <a href="/" class="text-white font-semibold hover:text-orange-400 transition-colors">HOME</a>
+                <a href="/about" class="bg-green-500 hover:bg-green-600 text-black font-extrabold py-2 px-4 rounded-full transition-all duration-300 shadow-lg hidden sm:block">ABOUT</a>
+     
+                {{#if user}}
+                    <a href="/profile" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">PROFILE</a>
+                    <a href="/logout" class="text-red-400 font-semibold hover:text-red-500 transition-colors hidden sm:block">LOG OUT</a>
+                {{else}}
+                    <a href="/login" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">LOG IN</a>
+                    <a href="/register" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">REGISTER</a>
+                {{/if}}
+            </nav>
+        </div>
+    </header>
+    
+    <main class="w-full max-w-5xl px-4 mt-8 space-y-10 mb-12">
+        
+        <header class="text-center pt-8 pb-4">
+            <h1 class="text-5xl font-extrabold text-white uppercase tracking-wider mb-2">Our Mission</h1>
+            <p class="text-xl text-gray-300 font-medium">Empowering Commuters to Plan Proactively</p>
+        </header>
+
+        <section class="p-8 rounded-xl shadow-2xl content-card border border-gray-700/50">
+            <h2 class="text-3xl font-bold text-primary mb-4 border-b border-gray-700 pb-2">The Problem We Solve</h2>
+            <p class="text-lg text-gray-200 leading-relaxed">
+                <span class="font-bold text-white">Trains are regularly packed</span> during rush hours, leaving thousands of commuters unable to board, causing long delays and stress.
+                Currently, there is <span class="text-heavy-crowd font-bold">no easy way</span> to check the current situation of a train platform without physically being there, turning a commute into a gamble.
+            </p>
+        </section>
+
+        <section class="p-8 rounded-xl shadow-2xl content-card border border-gray-700/50">
+            <h2 class="text-3xl font-bold text-accent mb-4 border-b border-gray-700 pb-2">Our Key Design Principles</h2>
+            <div class="space-y-6 text-gray-200">
+                
+                <div class="flex items-start space-x-4">
+       
+                    <div class="flex-shrink-0 w-6 h-6 text-primary mt-1">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                    </div>
+     
+                    <p class="text-lg"><span class="font-bold text-white">Focus on Impossibility:</span> Our density metrics (Light, Moderate, Heavy) are calibrated to the user-defined threshold: the point where boarding becomes <span class="text-heavy-crowd font-bold">physically impossible</span>, not just uncomfortable.</p>
+                </div>
+
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-6 h-6 text-primary mt-1">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-7-9.293a1 1 0 001.414-1.414L8 10.586l2.293-2.293a1 1 0 00-1.414-1.414L8 7.586l-2.293-2.293a1 1 0 00-1.414 1.414l3 3z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <p class="text-lg"><span class="font-bold text-white">Actionable Insight:</span> Commuters prefer <span class="text-heavy-crowd font-bold">simple color codes</span> (Green, Yellow, Red) for quick comprehension and actionable planning over raw data percentages.</p>
+                </div>
+
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-6 h-6 text-primary mt-1">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-5-8a1 1 0 011-1h8a1 1 0 011 1v2a1 1 0 01-1 1H6a1 1 0 01-1-1v-2z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <p class="text-lg"><span class="font-bold text-white">Stress Reduction:</span> Providing this information reduces commuter stress and increases their sense of <span class="text-heavy-crowd font-bold">control</span> over their 
+travel, enabling them to choose alternatives like delaying the trip or finding a different route.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="p-8 rounded-xl shadow-2xl content-card border border-gray-700/50">
+            <h2 class="text-3xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Developed By</h2>
+            <p class="text-lg text-gray-300">This platform 
+is developed by a team of students from De La Salle University, under the challenge-based learning, committed to finding innovative solutions for everyday world problems such as <span class="text-heavy-crowd font-bold">commuter challenges</span>.</p>
+            <ul class="mt-4 space-y-1 text-lg text-gray-300 font-medium">
+                <li>AKISHA JENEILLE C. AFRICA</li>
+                <li>ED BENNETT L. BORROMEO</li>
+                 <li>RIENZEL KRISTIAN P. GALANG</li>
+            </ul>
+        </section>
+
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Lucide icons
+            lucide.createIcons();
+
+            // Search Bar Logic
+            document.getElementById('search-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && this.value.trim() !== '') {
+                    window.location.href = `/search?query=${encodeURIComponent(this.value.trim())}`;
+                }
+            });
+        });
+
+        function clearSearch() { 
+            document.getElementById('search-input').value = ''; 
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LRT Density - Station Detail: {{station.name}}</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+    
+  <style>
+    /* Custom styles to handle things Tailwind can't do easily by default
+    */
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0a2d59;
+    }
+    
+    /* Smooth animation for when the chart bars grow/shrink */
+    .bar {
+      transition: height 0.6s ease-in-out;
+    }
+
+    /* Tab button states (Northbound/Southbound) */
+    .tab-btn.active {
+        background-color: var(--color-accent, #10b981);
+        color: white;
+    }
+    .tab-btn:not(.active) {
+        background-color: #374151; /* gray-700 */
+        color: #d1d5db; /* gray-300 */
+    }
+
+    /* Comment Section Styles */
+    .add-comment {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        margin-top: 20px;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        border-radius: 0.75rem;
+        border: 1px solid rgba(55, 65, 81, 0.5);
+        width: 100%;
+    }
+    .comment-area {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 20px;
+        width: 100%;
+    }
+    .comment-item {
+        background-color: #1f2937;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid #374151;
+        width: 100%;
+    }
+    .comment-author { color: #f59e0b; font-weight: bold; font-size: 0.9rem; }
+    .comment-entry { color: white; margin-bottom: 0.5rem; }
+    .votes { display: flex; gap: 0.5rem; }
+    
+    /* Reaction buttons (Up/Down) with hover effects */
+    .react-btn { 
+        background: none; border: none; cursor: pointer;
+        color: #9ca3af; 
+        transition: all 0.2s; display: flex; align-items: center; gap: 0.25rem;
+    }
+    .react-btn:hover { color: white; transform: scale(1.1); }
+    
+    /* Styles for when a user has already voted */
+    .react-btn.voted-up { color: #10b981; text-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+    .react-btn.voted-down { color: #ef4444; text-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+    
+    /* Edit mode styles */
+    .comment-edit-textarea {
+        width: 100%;
+        padding: 0.5rem; border-radius: 0.25rem;
+        background-color: #111827; border: 1px solid #374151; color: white;
+    }
+    .edit-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.5rem; }
+    .submit-btn {
+        background-color: #10b981;
+        color: white; padding: 0.5rem 1rem; border-radius: 0.25rem; font-weight: bold;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen pt-20 flex flex-col items-center">
+  <header class="header-nav fixed w-full top-0 bg-black/90 border-b border-gray-800 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
+      <div class="flex items-center space-x-4 flex-grow">
+        <div class="flex items-center space-x-1">
+          <div class="h-6 w-6 bg-orange-500 rounded-md"></div>
+          <span class="text-xl font-extrabold text-orange-500">LRT</span>
+        </div>
+        <div class="relative flex items-center bg-gray-800 rounded-full px-4 py-2 max-w-sm w-full transition-all duration-300">
+          <i data-lucide="search" class="w-5 h-5 text-gray-400 mr-2"></i>
+          <input type="text" id="search-input" placeholder="SEARCH STATION" class="bg-transparent text-white placeholder-gray-400 focus:outline-none flex-grow text-sm" />
+          <button id="clear-search" class="text-gray-400 hover:text-white transition-colors" onclick="clearSearch()">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+      
+      <nav class="flex items-center space-x-6">
+          <a href="/" class="text-white font-semibold hover:text-orange-400 transition-colors">HOME</a>
+          <a href="/about" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">ABOUT</a>
+          
+          {{#if user}}
+              <a href="/profile" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">PROFILE</a>
+              <a href="/logout" class="text-red-400 font-semibold hover:text-red-500 transition-colors hidden sm:block">LOG OUT</a>
+          {{else}}
+              <a href="/login" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">LOG IN</a>
+              <a href="/register" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">REGISTER</a>
+          {{/if}}
+      </nav>
+    </div>
+  </header>
+
+  <main class="w-full max-w-4xl px-4 mt-8 space-y-8 pb-12">
+    <div class="bg-black shadow-xl rounded-lg overflow-hidden border-2 border-orange-500">
+      
+      <div class="display-banner flex items-center justify-between p-4 mb-6 rounded-lg shadow-xl bg-gray-900">
+        <div class="flex items-center space-x-3">
+          <i data-lucide="train-front" class="w-8 h-8 text-white"></i>
+          <h1 id="station-title" class="text-2xl sm:text-3xl font-extrabold tracking-wide uppercase text-white">
+            {{station.name}}
+          </h1>
+        </div>
+        <div class="flex items-center space-x-2">
+          <div class="w-6 h-6 bg-orange-500 rounded-full"></div>
+          <div class="text-xs font-semibold text-white tracking-widest">LIGHT RAIL MANILA</div>
+        </div>
+      </div>
+
+      <div class="bg-gray-900 p-6 rounded-b-lg">
+        
+        <div class="flex items-center mb-6">
+          <div class="flex items-center space-x-2">
+            <button id="tab-nb" class="tab-btn active font-bold py-2 px-4 rounded-lg transition-colors">Northbound</button>
+            <button id="tab-sb" class="tab-btn font-bold py-2 px-4 rounded-lg transition-colors">Southbound</button>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center mb-6 gap-6">
+            
+            <div class="flex items-center space-x-2">
+                <span class="text-red-500 font-extrabold text-sm border-2 border-red-500 rounded-lg px-2 py-0.5">LIVE</span>
+                <span id="live-status-nb" class="text-white text-lg font-semibold uppercase">{{liveStatusNB}}</span>
+                <span id="live-status-sb" class="text-white text-lg font-semibold uppercase hidden">{{liveStatusSB}}</span>
+            </div>
+
+            <div class="flex items-center space-x-3 bg-gray-800 px-4 py-2 rounded-lg border border-gray-700 shadow-sm">
+                <span class="text-white font-bold text-sm uppercase tracking-wider text-gray-400">Popular times:</span>
+                <select id="day-selector" class="bg-gray-800 text-white font-bold text-lg focus:outline-none cursor-pointer uppercase tracking-wide text-center">
+                  <option value="monday">MONDAY</option>
+                  <option value="tuesday">TUESDAY</option>
+                  <option value="wednesday">WEDNESDAY</option>
+                  <option value="thursday">THURSDAY</option>
+                  <option value="friday">FRIDAY</option>
+                </select>
+            </div>
+            
+        </div>
+
+        <div class="flex items-center justify-between gap-2 sm:gap-4">
+            <button id="day-prev-btn" class="p-2 text-gray-400 hover:text-white transition-colors hover:bg-gray-800 rounded-full focus:outline-none">
+              <i data-lucide="chevron-left" class="w-8 h-8"></i>
+            </button>
+
+            <div class="flex-grow w-full">
+                <div class="w-full h-48 bg-gray-800 rounded-lg flex items-end justify-between p-2 overflow-hidden">
+                   <div id="chart-container" class="w-full h-full flex items-end justify-between" aria-label="Crowd density bar chart"></div>
+                </div>
+                <div id="chart-labels" class="w-full flex justify-between mt-2 text-xs text-gray-400 font-semibold"></div>
+            </div>
+
+            <button id="day-next-btn" class="p-2 text-gray-400 hover:text-white transition-colors hover:bg-gray-800 rounded-full focus:outline-none">
+               <i data-lucide="chevron-right" class="w-8 h-8"></i>
+            </button>
+        </div>
+
+      </div>
+    </div>
+
+    <section class="add-comment">  
+        <div class="text-xl font-bold text-white mb-4">WRITE A COMMENT</div>
+        <div id="comment-error-message" class="text-red-400 mb-2" style="display:none;"></div>
+        <div id="comment-success-message" class="text-green-400 mb-2" style="display:none;"></div>
+        
+        <form action="/comment" method="POST" id="comment-form" class="w-full max-w-lg flex flex-col items-center">
+            <input type="hidden" name="stationId" value="{{station._id}}">
+            <textarea 
+                id="comment-input" 
+                name="commentText" 
+                rows="3"
+                placeholder="Share your experience at {{station.name}}..."
+                class="w-full px-4 py-2.5 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:ring-accent focus:border-accent transition duration-150 mb-4 resize-none"
+                required
+            ></textarea>
+            <button type="submit" class="submit-btn w-full sm:w-auto">SUBMIT</button>
+        </form>
+    </section>
+
+    <section class="comment-area">  
+        <div class="text-2xl font-black text-white mb-4 uppercase tracking-wider text-center">STATION FEEDBACK</div>
+        <ul id="comment-list" class="w-full">
+            {{#each comments}}
+                <li class="comment-item" data-id="{{this._id}}">
+                    <div class="comment-display-view">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="flex items-center">
+                                <img src="{{this.authorAvatarUrl}}" alt="User" class="w-8 h-8 rounded-full mr-2 border border-gray-600 object-cover bg-gray-800">
+                                <div class="comment-author">@{{this.authorUsername}}</div>
+                            </div>
+
+                            <div class="text-xs text-gray-500 font-mono">
+                                {{timeAgo this.timestamp}}
+                            </div>
+                        </div>
+                        
+                        <div class="comment-entry">{{this.text}}</div>
+                                                     
+                        <div class="votes">
+                            <button class="react-btn {{#if (eq this.userVote 'upvoted')}}voted-up{{/if}}" data-vote="upvote">
+                                <span>👍</span><span class="react-count">{{this.upvotes}}</span>
+                            </button>
+                            <button class="react-btn {{#if (eq this.userVote 'downvoted')}}voted-down{{/if}}" data-vote="downvote">
+                                <span>👎</span><span class="react-count">{{this.downvotes}}</span>
+                            </button>
+                            
+                            {{#if this.canEdit}}
+                                <button class="edit-comment-btn react-btn" title="Edit"><span>✏️</span></button>
+                            {{/if}}
+                            {{#if this.canDelete}}
+                                <button class="delete-comment-btn react-btn" title="Delete"><span>🗑️</span></button>
+                            {{/if}}
+                        </div>
+                    </div>
+
+                    <div class="comment-edit-view" style="display: none;">
+                        <textarea class="comment-edit-textarea" rows="3">{{this.text}}</textarea>
+                        <div class="edit-actions">
+                            <button class="save-edit-btn submit-btn">Save</button>
+                            <button class="cancel-edit-btn submit-btn" style="background-color: #6b7280;">Cancel</button>
+                        </div>
+                    </div>
+                </li>
+            {{/each}}
+        </ul>
+    </section>
+
+  </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+           lucide.createIcons();
+
+            // Search Bar Logic
+            document.getElementById('search-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && this.value.trim() !== '') {
+                    window.location.href = `/search?query=${encodeURIComponent(this.value.trim())}`;
+                }
+            });
+
+            // Show Message
+            // Simply toggles success/error messages for comment actions
+            function showMessage(message, type = 'error') {
+                const errorMsg = document.getElementById('comment-error-message');
+                const successMsg = document.getElementById('comment-success-message');
+                errorMsg.style.display = 'none';
+                successMsg.style.display = 'none';
+                let targetElement = type === 'error' ? errorMsg : successMsg;
+                targetElement.textContent = message;
+                targetElement.style.display = 'block';
+                // Auto-hide after 3 seconds
+                setTimeout(() => { targetElement.style.display = 'none'; }, 3000);
+            }
+
+            // COMMENT EVENT LISTENER 
+            // Instead of attaching listeners to every single button (which is slow),
+            // we attach one listener to the main list and check what was clicked
+            const commentList = document.getElementById('comment-list');
+            if (commentList) {
+                commentList.addEventListener('click', async (e) => {
+                    const commentItem = e.target.closest('.comment-item');
+                    if (!commentItem) return;
+                    
+                    const commentId = commentItem.dataset.id;
+                    const displayView = commentItem.querySelector('.comment-display-view');
+                    const editView = commentItem.querySelector('.comment-edit-view');
+
+                    // Handle Reaction Clicks (Upvote/Downvote)
+                    const reactButton = e.target.closest('.react-btn[data-vote]');
+                    if (reactButton) {
+                        const voteType = reactButton.dataset.vote;
+                        const upvoteBtn = commentItem.querySelector('[data-vote="upvote"]');
+                        const downvoteBtn = commentItem.querySelector('[data-vote="downvote"]');
+                        const upvoteCount = upvoteBtn.querySelector('.react-count');
+                        const downvoteCount = downvoteBtn.querySelector('.react-count');
+                        
+                        try {
+                            // Send vote to server
+                            const response = await fetch('/comment/react', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ commentId, voteType })
+                            });
+                            const result = await response.json();
+                            
+                            // Update UI based on server response
+                            if (response.ok) {
+                                upvoteCount.textContent = result.upvotes;
+                                downvoteCount.textContent = result.downvotes;
+                                upvoteBtn.classList.remove('voted-up');
+                                downvoteBtn.classList.remove('voted-down');
+                                
+                                if (result.newVoteState === 'upvoted') upvoteBtn.classList.add('voted-up');
+                                if (result.newVoteState === 'downvoted') downvoteBtn.classList.add('voted-down');
+                            } else showMessage(result.message, 'error');
+                        } catch (err) { showMessage('Error reacting.', 'error'); }
+                    }
+
+                    // Handle Delete Click
+                    if (e.target.closest('.delete-comment-btn')) {
+                        if (!confirm('Delete this comment?')) return;
+                        try {
+                            const response = await fetch('/comment/delete', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ commentId })
+                            });
+                            if (response.ok) {
+                                commentItem.remove(); // Remove from DOM immediately
+                            } else {
+                                const res = await response.json();
+                                showMessage(res.message, 'error');
+                            }
+                        } catch (err) { showMessage('Error deleting.', 'error');
+                        }
+                    }
+
+                    // Handle Edit Click - Switch to Edit View
+                    if (e.target.closest('.edit-comment-btn')) {
+                        displayView.style.display = 'none';
+                        editView.style.display = 'block';
+                    }
+                    // Handle Cancel Click - Revert to Display View
+                    if (e.target.closest('.cancel-edit-btn')) {
+                        displayView.style.display = 'block';
+                        editView.style.display = 'none';
+                    }
+                    // Handle Save Click
+                    if (e.target.closest('.save-edit-btn')) {
+                        const newText = editView.querySelector('.comment-edit-textarea').value;
+                        try {
+                            const response = await fetch('/comment/edit', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ commentId, newText })
+                            });
+                            const result = await response.json();
+                            if (response.ok) {
+                                // Update text and switch back
+                                displayView.querySelector('.comment-entry').textContent = result.newText;
+                                displayView.style.display = 'block';
+                                editView.style.display = 'none';
+                            } else showMessage(result.message, 'error');
+                        } catch (err) { showMessage('Error saving edit.', 'error');
+                        }
+                    }
+                });
+            }
+        });
+
+        function clearSearch() { document.getElementById('search-input').value = '';
+        }
+
+        // Chart Logic 
+        // Injecting the raw JSON data from the server into a JS variable
+        const HISTORICAL_DATA_NB = {{{historicalDataNB}}};
+        const HISTORICAL_DATA_SB = {{{historicalDataSB}}};
+
+        if (document.getElementById('chart-container')) {
+            document.addEventListener('DOMContentLoaded', () => {
+                const chartContainer = document.getElementById('chart-container');
+                const daySelector = document.getElementById('day-selector'); 
+                const dayPrevBtn = document.getElementById('day-prev-btn');
+                const dayNextBtn = document.getElementById('day-next-btn');
+                
+                const tabNB = document.getElementById('tab-nb');
+                const tabSB = document.getElementById('tab-sb');
+                const liveStatusNB = document.getElementById('live-status-nb');
+                const liveStatusSB = document.getElementById('live-status-sb');
+                const chartLabels = document.getElementById('chart-labels');
+
+                // Data setup
+                const daysList = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+                
+                // Logic to set initial day based on real-world time
+                const realDayIndex = new Date().getDay();
+                // 0=Sun, 1=Mon...
+                let currentDayIndex = 0;
+                // Default to Monday if it's weekend
+
+                if (realDayIndex >= 1 && realDayIndex <= 5) {
+                    currentDayIndex = realDayIndex - 1;
+                } else {
+                    currentDayIndex = 0;
+                }
+                
+                // Sync dropdown to the calculated day
+                daySelector.value = daysList[currentDayIndex];
+                
+                // Set default platform view (passed from controller)
+                const defaultPlatform = '{{defaultPlatform}}';
+                let currentView = 'NB'; 
+                
+                // If the user came from a Southbound search, switch tabs immediately
+                if (defaultPlatform === 'sb') {
+                    currentView = 'SB';
+                    tabNB.classList.remove('active');
+                    tabSB.classList.add('active');
+                    liveStatusNB.classList.add('hidden');
+                    liveStatusSB.classList.remove('hidden');
+                }
+
+                function updateDay(newIndex) {
+                    // Ensure index stays within bounds [0, 4] with wrap-around logic
+                    currentDayIndex = (newIndex + daysList.length) % daysList.length;
+                    
+                    const dayName = daysList[currentDayIndex];
+                    
+                    // Update Dropdown Value
+                    daySelector.value = dayName;
+                    // Re-render Chart
+                    renderChart(dayName);
+                }
+
+                // Helper: Returns Tailwind classes based on density %
+                function getBarColor(density) {
+                    if (density >= 80) return 'bg-red-600';
+                    if (density >= 50) return 'bg-yellow-500';
+                    return 'bg-green-500';
+                }
+
+                // Main function to draw the bars
+                function renderChart(day) {
+                    let stationData = (currentView === 'NB') ? HISTORICAL_DATA_NB : HISTORICAL_DATA_SB;
+                    if (!stationData) stationData = { [day]: [] }; 
+                    const densityData = stationData[day] || [];
+                    
+                    // Sanity check: ensure we have 24 data points
+                    if (densityData.length !== 24) { for(let i=0; i < 24; i++) if (typeof densityData[i] === 'undefined') densityData[i] = 0;
+                    }
+
+                    const hours = ['12a','1a','2a','3a','4a','5a','6a','7a','8a','9a','10a','11a','12p','1p','2p','3p','4p','5p','6p','7p','8p','9p','10p','11p'];
+                    const liveHour = new Date().getHours();
+
+                    // Clear previous chart
+                    chartContainer.innerHTML = '';
+                    chartLabels.innerHTML = '';
+                    
+                    // Loop 24 times to create each bar
+                    densityData.forEach((density, index) => {
+                        const isLive = index === liveHour;
+                        let barColor = getBarColor(density);
+                        const bar = document.createElement('div');
+                        bar.className = `bar ${barColor} hover:bg-opacity-75 rounded-t-sm transition-all duration-500 ease-out cursor-pointer`;
+                        bar.style.height = `${density}%`; // Height is % based
+                        bar.style.width = "3%";
+                        bar.title = `${hours[index]}: ${density}% Density`;
+                        
+                        // Highlight the bar representing the current hour
+                        if (isLive) {
+                            bar.classList.add('ring-4', 'ring-red-300/50');
+                            const liveStatusText = (currentView === 'NB') ? liveStatusNB.textContent : liveStatusSB.textContent;
+                            bar.title += ` (LIVE: ${liveStatusText})`;
+                        }
+                        chartContainer.appendChild(bar);
+
+                        // Create labels below bars
+                        const barLabel = document.createElement('span');
+                        barLabel.style.width = "3%";
+                        barLabel.className = 'text-center'; 
+                        
+                        // Only show labels every 3 hours to avoid clutter
+                        if (index % 3 === 0) barLabel.textContent = hours[index];
+                        else barLabel.textContent = '';
+                        
+                        // Always show label for the current live hour
+                        if (isLive) {
+                            barLabel.classList.add('text-red-400', 'font-bold');
+                            barLabel.textContent = hours[index];
+                        }
+                        chartLabels.appendChild(barLabel);
+                    });
+                }
+
+                
+                // Dropdown Change
+                daySelector.addEventListener('change', (e) => {
+                    const newIndex = daysList.indexOf(e.target.value);
+                    if (newIndex !== -1) {
+                        updateDay(newIndex);
+                    }
+                });
+                // Arrow Buttons
+                dayPrevBtn.addEventListener('click', () => {
+                    updateDay(currentDayIndex - 1);
+                });
+                dayNextBtn.addEventListener('click', () => {
+                    updateDay(currentDayIndex + 1);
+                });
+                
+                // Switching Tabs (Northbound vs Southbound)
+                tabNB.addEventListener('click', () => {
+                    if (currentView === 'NB') return; 
+                    currentView = 'NB';
+                    tabNB.classList.add('active');
+                    tabSB.classList.remove('active');
+                    liveStatusNB.classList.remove('hidden');
+                    liveStatusSB.classList.add('hidden');
+                    renderChart(daysList[currentDayIndex]); 
+                });
+                tabSB.addEventListener('click', () => {
+                    if (currentView === 'SB') return; 
+                    currentView = 'SB';
+                    tabSB.classList.add('active');
+                    tabNB.classList.remove('active');
+                    liveStatusSB.classList.remove('hidden');
+                    liveStatusNB.classList.add('hidden');
+                    renderChart(daysList[currentDayIndex]); 
+                });
+                
+                // Initial render on page load
+                renderChart(daysList[currentDayIndex]);
+            });
+        }
+    </script>
+</body>
+</html>

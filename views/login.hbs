@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LRT Density - Log In</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/styles.css"> 
+    
+    <style>
+        /* Tailwind Configuration:
+           We extend the default theme to include our specific project colors 
+           (primary, secondary, accent, crowd levels) defined in CSS variables.
+        */
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': 'var(--color-primary)', 
+                        'secondary': 'var(--color-secondary)',
+                        'accent': 'var(--color-accent)', 
+                        'light-crowd': 'var(--crowd-light)',
+                        'moderate-crowd': 'var(--crowd-moderate)',
+                        'heavy-crowd': 'var(--crowd-heavy)',
+                      },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </style>
+</head>
+<body class="bg-secondary min-h-screen pt-20 flex flex-col items-center">
+
+    <header class="header-nav fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
+            
+            <div class="flex items-center space-x-4 flex-grow">
+                <div class="flex items-center space-x-1">
+                    <div class="h-6 w-6 bg-orange-500 rounded-md"></div>
+                     <span class="text-xl font-extrabold text-orange-500">LRT</span>
+                </div>
+                
+                <div class="relative flex items-center bg-gray-800 rounded-full px-4 py-2 max-w-sm w-full transition-all duration-300">
+                    <i data-lucide="search" class="w-5 h-5 text-gray-400 mr-2"></i>
+                     <input type="text" id="search-input" placeholder="SEARCH STATION" class="bg-transparent text-white placeholder-gray-400 focus:outline-none flex-grow text-sm">
+                    <button id="clear-search" class="text-gray-400 hover:text-white transition-colors" onclick="clearSearch()">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <nav class="flex items-center space-x-6">
+                <a href="/" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">HOME</a>
+                <a href="/about" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">ABOUT</a>
+                <a href="/login" class="bg-green-500 hover:bg-green-600 text-black font-extrabold py-2 px-4 rounded-full transition-all duration-300 shadow-lg">LOG IN</a>
+                <a href="/register" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">REGISTER</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="w-full max-w-md mt-16 p-8 bg-black/50 backdrop-blur-sm rounded-xl shadow-2xl border border-gray-700/50">
+        <h2 class="text-3xl font-extrabold text-white text-center mb-6">Welcome Back</h2>
+        
+        {{#if errorMessage}}
+            <p id="error-message" class="text-red-400 text-center mb-4 font-medium">{{errorMessage}}</p>
+        {{/if}}
+        
+        {{#if successMessage}}
+            <p id="success-message" class="text-primary text-center mb-4 font-medium">{{successMessage}}</p>
+        {{/if}}
+
+        <form id="login-form" class="space-y-6" action="/login" method="POST">
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-300 mb-1">Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    required
+                    class="w-full px-4 py-2.5 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:ring-primary focus:border-primary transition duration-150"
+                    placeholder="Enter your username"
+                >
+            </div>
+            
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        required
+                        class="w-full px-4 py-2.5 pr-10 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:ring-primary focus:border-primary transition duration-150"
+                        placeholder="Enter your password"
+                    >
+                    <button 
+                        type="button" 
+                        id="toggle-password" 
+                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white focus:outline-none"
+                    >
+                        <i data-lucide="eye-off" id="eye-off-icon"></i>
+                        <i data-lucide="eye" id="eye-icon" class="hidden"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <button 
+                type="submit" 
+                id="login-btn"
+                disabled
+                class="w-full bg-gray-600 text-gray-300 cursor-not-allowed font-bold py-3 rounded-lg shadow-lg transition duration-200 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50"
+            >
+               LOG IN
+            </button>
+        </form>
+
+        <p class="mt-6 text-center text-sm text-gray-400">
+            Don't have an account? <a href="/register" class="text-primary hover:text-white font-semibold transition duration-150">Register</a>
+        </p>
+
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => { 
+            // Initialize Lucide icons
+            lucide.createIcons(); 
+
+            // Password Visibility Toggle Logic
+            // Switches input type between 'password' (dots) and 'text' (readable)
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.getElementById('toggle-password');
+            const eyeIcon = document.getElementById('eye-icon');
+            const eyeOffIcon = document.getElementById('eye-off-icon');
+
+            toggleBtn.addEventListener('click', () => {
+                // Toggle the type attribute
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+
+                // Toggle the icons
+                eyeIcon.classList.toggle('hidden');
+                eyeOffIcon.classList.toggle('hidden');
+            });
+
+            // Button Light-Up Logic
+            // Checks if both fields have text. If yes, turns button Green. If no, stays Gray.
+            const usernameInput = document.getElementById('username');
+            const loginBtn = document.getElementById('login-btn');
+
+            function checkInputs() {
+                const isUserFilled = usernameInput.value.trim() !== '';
+                const isPassFilled = passwordInput.value.trim() !== '';
+
+                if (isUserFilled && isPassFilled) {
+                    // Enable & Light up Green
+                    loginBtn.disabled = false;
+                    loginBtn.classList.remove('bg-gray-600', 'text-gray-300', 'cursor-not-allowed');
+                    loginBtn.classList.add('bg-green-500', 'text-black', 'hover:bg-green-600', 'cursor-pointer');
+                } else {
+                    // Disable & Dim Gray
+                    loginBtn.disabled = true;
+                    loginBtn.classList.add('bg-gray-600', 'text-gray-300', 'cursor-not-allowed');
+                    loginBtn.classList.remove('bg-green-500', 'text-black', 'hover:bg-green-600', 'cursor-pointer');
+                }
+            }
+
+            // Listen for typing in both fields to trigger the check immediately
+            usernameInput.addEventListener('input', checkInputs);
+            passwordInput.addEventListener('input', checkInputs);
+
+            // Search Bar Logic
+            document.getElementById('search-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && this.value.trim() !== '') {
+                    window.location.href = `/search?query=${encodeURIComponent(this.value.trim())}`;
+                }
+            });
+        });
+
+        function clearSearch() { 
+            document.getElementById('search-input').value = ''; 
+        }
+    </script>
+</body>
+</html>

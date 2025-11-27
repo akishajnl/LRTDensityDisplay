@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LRT Density - Register</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <link rel="stylesheet" href="/styles.css">
+    
+    <style>
+        /* Tailwind Configuration: Custom colors for the project theme */
+        tailwind.config = {
+            theme: {
+                 extend: {
+                    colors: {
+                        'primary': 'var(--color-primary)', 
+                        'secondary': 'var(--color-secondary)',
+                        'accent': 'var(--color-accent)', 
+                        'light-crowd': 'var(--crowd-light)',
+                        'moderate-crowd': 'var(--crowd-moderate)',
+                        'heavy-crowd': 'var(--crowd-heavy)',
+                   },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+           }
+           
+        /* These styles handle the animation of the password strength bar */
+        .strength-meter {
+            height: 4px;
+            width: 100%;
+            background-color: #374151; /* Gray background for empty bar */
+            margin-top: 8px;
+            border-radius: 2px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .strength-bar {
+            height: 100%;
+            width: 0%; /* Starts empty */
+            transition: width 0.3s ease, background-color 0.3s ease; /* Smoothly animate color and width changes */
+        }
+        .strength-text {
+            font-size: 0.75rem;
+            margin-top: 4px;
+            text-align: right;
+            font-weight: 600;
+        }
+        
+        #submit-btn {
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen pt-20 flex flex-col items-center">
+
+     <header class="header-nav fixed w-full top-0"> 
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3"> 
+            
+            <div class="flex items-center space-x-4 flex-grow">
+                <div class="flex items-center space-x-1">
+                    <div class="h-6 w-6 bg-orange-500 rounded-md"></div>
+                    <span class="text-xl font-extrabold text-orange-500">LRT</span>
+                </div>
+                <div class="relative flex items-center bg-gray-800 rounded-full px-4 py-2 max-w-sm w-full transition-all duration-300">
+                    <i data-lucide="search" class="w-5 h-5 text-gray-400 mr-2"></i>
+                     <input type="text" id="search-input" placeholder="SEARCH STATION" class="bg-transparent text-white placeholder-gray-400 focus:outline-none flex-grow text-sm">
+                    <button id="clear-search" class="text-gray-400 hover:text-white transition-colors" onclick="clearSearch()">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <nav class="flex items-center space-x-6">
+                <a href="/" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">HOME</a>
+                <a href="/about" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">ABOUT</a>
+                <a href="/login" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">LOG IN</a>
+                <a href="/register" class="bg-green-500 hover:bg-green-600 text-black font-extrabold py-2 px-4 rounded-full transition-all duration-300 shadow-lg">REGISTER</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="w-full max-w-md mt-16 p-8 bg-black/50 backdrop-blur-sm rounded-xl shadow-2xl border border-gray-700/50">
+        <h2 class="text-3xl font-extrabold text-white text-center mb-6">Create Account</h2> 
+
+        {{#if errorMessage}}
+            <p id="error-message" class="text-red-400 text-center mb-4 font-medium">{{errorMessage}}</p>
+        {{/if}}
+        {{#if successMessage}}
+            <p id="success-message" class="text-primary text-center mb-4 font-medium">{{successMessage}}</p>
+        {{/if}}
+
+        <form id="register-form" class="space-y-6" action="/register" method="POST">
+            
+            <div>
+                <label for="reg-username" class="block text-sm font-medium text-gray-300 mb-1">Username</label>
+                <input 
+                    type="text" 
+                    id="reg-username" 
+                    name="username"
+                    required
+                    class="w-full px-4 py-2.5 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:ring-primary focus:border-primary transition duration-150"
+                    placeholder="Choose a username"
+                >
+            </div>
+            
+            <div>
+                <label for="reg-password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="reg-password" 
+                        name="password"
+                        required
+                        class="w-full px-4 py-2.5 pr-10 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:ring-primary focus:border-primary transition duration-150"
+                        placeholder="Enter password"
+                    >
+                    <button type="button" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-white focus:outline-none" onclick="togglePasswordVisibility('reg-password', this)">
+                        <i data-lucide="eye-off" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <div class="strength-meter">
+                    <div id="strength-bar" class="strength-bar"></div>
+                </div>
+                <div id="strength-text" class="strength-text text-gray-500">Enter Password</div>
+                
+                <p class="text-xs text-gray-500 mt-2">
+                    * Must have 8+ chars and 1 number.<br>
+                    * Add Uppercase or Symbol for Strong.
+                </p>
+            </div>
+
+            <div>
+                <label for="reg-confirm-password" class="block text-sm font-medium text-gray-300 mb-1">Confirm Password</label>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="reg-confirm-password" 
+                        name="confirmPassword"
+                        required
+                        class="w-full px-4 py-2.5 pr-10 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:ring-primary focus:border-primary transition duration-150"
+                        placeholder="Confirm password"
+                    >
+                    <button type="button" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-white focus:outline-none" onclick="togglePasswordVisibility('reg-confirm-password', this)">
+                        <i data-lucide="eye-off" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <button 
+                type="submit" 
+                id="submit-btn"
+                disabled 
+                class="w-full bg-gray-500 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-opacity-90 transition duration-200 focus:outline-none focus:ring-4 focus:ring-accent focus:ring-opacity-50 transform hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+                REGISTER
+            </button>
+        </form>
+
+        <p class="mt-6 text-center text-sm text-gray-400">
+            Already have an account?
+            <a href="/login" class="text-primary hover:text-white font-semibold transition duration-150">Log In</a>
+        </p>
+
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => { 
+            // Initialize Icons
+            lucide.createIcons(); 
+
+            // Search Bar Listener
+            document.getElementById('search-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && this.value.trim() !== '') {
+                    window.location.href = `/search?query=${encodeURIComponent(this.value.trim())}`;
+                }
+            });
+
+            // FORM VALIDATION LOGIC
+            // We need to grab all input fields to check them in real-time
+            const usernameInput = document.getElementById('reg-username');
+            const passwordInput = document.getElementById('reg-password');
+            const confirmInput = document.getElementById('reg-confirm-password');
+            
+            // UI elements to update
+            const strengthBar = document.getElementById('strength-bar');
+            const strengthText = document.getElementById('strength-text');
+            const submitBtn = document.getElementById('submit-btn'); 
+
+            // Core function: Checks password strength and enables/disables button
+            function updateFormState() {
+                const val = passwordInput.value;
+                const userVal = usernameInput.value.trim();
+                const confirmVal = confirmInput.value.trim();
+
+                let score = 0;
+
+                // 1. Define Rules using Regex
+                const hasLength = val.length >= 8;
+                const hasNumber = /\d/.test(val); // Checks for digits 0-9
+                // Checks for special chars OR uppercase letters
+                const hasSpecialOrUpper = /[!@#$%^&*(),.?":{}|<>]/.test(val) || /[A-Z]/.test(val);
+
+                // 2. Calculate Score
+                if (hasLength) score++;
+                if (hasNumber) score++;
+                if (hasSpecialOrUpper) score++;
+
+                // 3. Update Visuals based on Score
+                if (val.length === 0) {
+                    // Reset
+                    strengthBar.style.width = '0%';
+                    strengthBar.style.backgroundColor = '#374151';
+                    strengthText.textContent = 'Enter Password';
+                    strengthText.style.color = '#6b7280';
+                } else if (!hasLength || !hasNumber) {
+                    // Weak (Failed basic requirements)
+                    strengthBar.style.width = '33%';
+                    strengthBar.style.backgroundColor = '#ef4444'; // Red
+                    strengthText.textContent = 'Weak (Must have 8+ chars & 1 number)';
+                    strengthText.style.color = '#ef4444';
+                } else if (score < 3) {
+                    // Good (Met basics, but could be stronger)
+                    strengthBar.style.width = '66%';
+                    strengthBar.style.backgroundColor = '#f59e0b'; // Yellow/Orange
+                    strengthText.textContent = 'Good (Add Uppercase or Symbol to make it Strong)';
+                    strengthText.style.color = '#f59e0b';
+                } else {
+                    // Strong (Met all criteria)
+                    strengthBar.style.width = '100%';
+                    strengthBar.style.backgroundColor = '#10b981'; // Green
+                    strengthText.textContent = 'Strong Password!';
+                    strengthText.style.color = '#10b981';
+                }
+
+                // 4. Update Button State
+                // Only enable button if ALL fields are filled AND password is not weak
+                const allFieldsFilled = (userVal !== '' && val !== '' && confirmVal !== '');
+                const isPasswordWeak = (!hasLength || !hasNumber);
+
+                if (!allFieldsFilled || isPasswordWeak) {
+                    // Disable Button
+                    submitBtn.disabled = true;
+                    submitBtn.classList.remove('bg-primary', 'hover:opacity-90', 'bg-green-500', 'hover:bg-green-600', 'bg-accent');
+                    submitBtn.classList.add('bg-gray-500');
+                } 
+                else if (score === 3) {
+                    // Strong Password: Make button GREEN
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('bg-gray-500', 'bg-primary', 'hover:opacity-90', 'bg-accent');
+                    submitBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                } 
+                else {
+                    // Normal/Good Password: Make button primary
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('bg-gray-500', 'bg-green-500', 'hover:bg-green-600', 'bg-accent');
+                    submitBtn.classList.add('bg-primary', 'hover:opacity-90');
+                }
+            }
+
+            // Listen for typing in any field to update state immediately
+            usernameInput.addEventListener('input', updateFormState);
+            passwordInput.addEventListener('input', updateFormState);
+            confirmInput.addEventListener('input', updateFormState);
+        });
+
+        // PASSWORD VISIBILITY TOGGLE
+        // Reuseable function for both Password and Confirm Password fields
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            
+            if (input.type === 'password') {
+                input.type = 'text'; // Make Visible
+                // Replace content with 'eye' (Open)
+                btn.innerHTML = '<i data-lucide="eye" class="w-5 h-5"></i>';
+            } else {
+                input.type = 'password'; // Make Hidden
+                // Replace content with 'eye-off' (Slashed)
+                btn.innerHTML = '<i data-lucide="eye-off" class="w-5 h-5"></i>';
+            }
+            // Re-render icons because we replaced the HTML inside the button
+            lucide.createIcons();
+        }
+
+        function clearSearch() { 
+            document.getElementById('search-input').value = ''; 
+        }
+    </script>
+</body>
+</html>

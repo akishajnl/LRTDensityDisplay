@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LRT Density - User Profile</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/styles.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        
+        /* Tailwind Configuration: Extending the default theme with app-specific colors */
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': 'var(--color-primary)',   // Dynamic colors from CSS variables
+                        'secondary': 'var(--color-secondary)',
+                        'accent': 'var(--color-accent)',
+                        'light-crowd': 'var(--crowd-light)',       // Status colors for density/badges
+                        'moderate-crowd': 'var(--crowd-moderate)',
+                        'heavy-crowd': 'var(--crowd-heavy)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+
+        
+        /* Background gradient for the whole page */
+        .profile-bg {
+            background-color: var(--secondary-color);
+            background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.9) 100%);
+        }
+        
+        /* The main container for the profile info */
+        .profile-card {
+            background-color: #1f2937; /* Dark gray */
+            border: 1px solid rgba(75, 85, 99, 0.3);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Special styling to make inputs look like regular text when editing */
+        .input-as-text {
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            display: none;
+        }
+        .input-as-text:focus {
+            outline: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body class="profile-bg min-h-screen pt-20 flex flex-col items-center">
+
+    <header class="header-nav fixed w-full top-0"> 
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
+            
+            <div class="flex items-center space-x-4 flex-grow">
+                <div class="flex items-center space-x-1">
+                    <div class="h-6 w-6 bg-orange-500 rounded-md"></div>
+                    <span class="text-xl font-extrabold text-orange-500">LRT</span>
+                </div>
+                <div class="relative flex items-center bg-gray-800 rounded-full px-4 py-2 max-w-sm w-full transition-all duration-300">
+                    <i data-lucide="search" class="w-5 h-5 text-gray-400 mr-2"></i>
+                    <input type="text" id="search-input" placeholder="SEARCH STATION" class="bg-transparent text-white placeholder-gray-400 focus:outline-none flex-grow text-sm">
+                    <button id="clear-search" class="text-gray-400 hover:text-white transition-colors" onclick="clearSearch()">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <nav id="nav-links" class="flex items-center space-x-6">
+                <a href="/" class="text-white font-semibold hover:text-orange-400 transition-colors">HOME</a>
+                <a href="/about" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">ABOUT</a>
+                
+                {{#if user}}
+                <a href="/profile" class="bg-green-500 hover:bg-green-600 text-black font-extrabold py-2 px-4 rounded-full transition-all duration-300 shadow-lg hidden sm:block">PROFILE</a>
+                <a href="/logout" class="text-red-400 font-semibold hover:text-red-500 transition-colors hidden sm:block">LOG OUT</a>
+                {{else}}
+                <a href="/login" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">LOG IN</a>
+                <a href="/register" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">REGISTER</a>
+                {{/if}}
+            </nav>
+        </div>
+    </header>
+    
+   
+    <main class="w-full max-w-xl px-4 pt-16">
+
+        {{#if errorMessage}}
+            <div class="bg-red-900/80 border border-red-500 text-white px-4 py-3 rounded-lg mb-6 text-center font-semibold shadow-lg backdrop-blur-sm">
+                {{errorMessage}}
+            </div>
+        {{/if}}
+
+        <form id="profile-form" action="/profile" method="POST" class="profile-card rounded-xl mt-8 mb-12 text-white overflow-hidden shadow-2xl">
+
+            <div class="h-28 bg-primary/70 relative">
+                <div class="absolute -bottom-10 left-4 group cursor-pointer" id="avatar-container">
+                    <img src="{{user.avatarUrl}}" alt="Profile Picture" class="w-20 h-20 rounded-full border-4 border-gray-900 shadow-lg" id="profile-avatar">
+                    <button type="button" onclick="changeAvatar()" id="edit-photo-button" class="absolute inset-0 w-full h-full bg-black/50 rounded-full flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100 hidden">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.808-1.212A2 2 0 0110.428 5h3.144a2 2 0 011.664.89l.808 1.212a2 2 0 001.664.89H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4 pt-12">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-extrabold" id="username-display">{{user.username}}</h1>
+                        <input type="text" id="username-input" name="newUsername" value="{{user.username}}" class="text-3xl font-extrabold bg-gray-800 border border-gray-700 rounded-lg p-1 hidden w-full" required>
+                        
+                        <span class="text-gray-500 font-mono text-lg flex items-center mt-1">
+                            <span id="profile-tag-display" class="display-element">{{user.tag}}</span>
+                            <input type="text" id="profile-tag-input" name="tag" value="{{user.tag}}" class="input-as-text text-gray-500 font-mono text-lg bg-gray-800 border border-gray-700 rounded px-1 hidden" />
+                            
+                            <span class="text-sm text-primary ml-2" id="profile-role">{{user.role}}</span>
+                        </span>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button type="button" onclick="toggleEditMode(true)" id="edit-button" class="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 focus:ring-4 focus:ring-indigo-500">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            Edit Profile
+                        </button>
+                        <button type="submit" id="save-button" class="flex items-center bg-primary text-secondary font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 focus:ring-4 focus:ring-primary hidden">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Save Changes
+                        </button>
+                        <button type="button" onclick="toggleEditMode(false)" id="cancel-button" class="flex items-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 hidden">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h2 class="text-xl font-bold text-primary">Commuter Status</h2>
+                    <p class="text-sm text-gray-400 mb-4">
+                        Member since 
+                        <span id="member-since-display" class="font-medium text-gray-300">{{formatDate user.memberSince}}</span>
+                    </p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                            <span class="text-sm font-medium text-gray-400">Contribution Rank</span>
+                            <p id="contribution-rank" class="text-2xl font-bold text-accent">{{user.rank}}</p>
+                        </div>
+                        
+                        <div class="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                            <span class="text-sm font-medium text-gray-400">Trust Badge</span>
+                            <span id="trust-badge-display" class="display-element text-2xl font-bold text-light-crowd">{{user.badge}}</span>
+                            <input type="text" id="trust-badge-input" name="badge" value="{{user.badge}}" class="input-as-text text-2xl font-bold text-light-crowd bg-gray-800 border border-gray-700 rounded px-1 hidden" />
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-6 border-gray-700">
+    
+                <h2 class="text-xl font-bold mb-3 text-white">Private Notes</h2>
+                <div id="notes-display" class="text-sm text-gray-400 min-h-[6rem] p-2 bg-gray-900 border border-gray-700 rounded-lg whitespace-pre-wrap display-element">{{user.notes}}</div>
+                <textarea id="notes-input" name="notes" class="w-full h-24 p-2 bg-gray-900 border border-gray-700 rounded-lg text-sm text-gray-300 resize-none hidden" placeholder="Enter your private note here (only visible to you)">{{user.notes}}</textarea>
+
+            </div>
+        </form>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize icons
+            lucide.createIcons();
+
+            // Handle Search Bar "Enter" key
+            document.getElementById('search-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && this.value.trim() !== '') {
+                    window.location.href = `/search?query=${encodeURIComponent(this.value.trim())}`;
+                }
+            });
+        });
+
+        // Basic logout function
+        function logout() {
+            localStorage.clear(); 
+            sessionStorage.clear();
+            window.location.href = '/'; 
+        }
+
+        // Toggle Edit Mode 
+        // Switches the UI between "View Mode" (text) and "Edit Mode" (inputs)
+        function toggleEditMode(isEditMode) {
+            // Select all elements meant for display only (text spans/divs)
+            const displayElements = document.querySelectorAll('.display-element');
+            // Select all form inputs
+            const inputElements = document.querySelectorAll('input[name="newUsername"], input[name="tag"], input[name="badge"], textarea[name="notes"], #edit-photo-button');
+            
+            // Toggle Display Elements
+            displayElements.forEach(el => {
+                if (isEditMode) {
+                    el.classList.add('hidden'); // Hide text when editing
+                } else {
+                    el.classList.remove('hidden'); // Show text when viewing
+                }
+            });
+
+            // Toggle Input Elements
+            inputElements.forEach(el => {
+                if (isEditMode) {
+                    el.classList.remove('hidden');
+                    // Special handling for elements styling themselves as text
+                    if (el.classList.contains('input-as-text')) {
+                        el.style.display = 'block';
+                    }
+                } else {
+                    el.classList.add('hidden');
+                    if (el.classList.contains('input-as-text')) {
+                        el.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Toggle Main Username Display/Input specifically
+            document.getElementById('username-display').classList.toggle('hidden', isEditMode);
+            document.getElementById('username-input').classList.toggle('hidden', !isEditMode);
+            
+            // Toggle Action Buttons
+            document.getElementById('edit-button').classList.toggle('hidden', isEditMode);
+            document.getElementById('save-button').classList.toggle('hidden', !isEditMode);
+            document.getElementById('cancel-button').classList.toggle('hidden', !isEditMode);
+        }
+        
+        function clearSearch() { 
+            document.getElementById('search-input').value = ''; 
+        }
+        
+        function changeAvatar() { 
+            alert('Feature not implemented in Phase 2, requires file upload logic.'); 
+        }
+    </script>
+</body>
+</html>
