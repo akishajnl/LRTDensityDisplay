@@ -90,7 +90,7 @@ If you also wish to deploy this project on render, follow these steps:
    
    		Key: MONGO_URI
    
-   		Value: mongodb+srv://lrtuser:lrtuser@cbapdev.wxi3coi.mongodb.net/
+   		Value: <Insert MongoDB URI>
    
    5.2. Add a variable:
    
@@ -221,6 +221,7 @@ and reasoning taken from our CBINOV3 needfinding study.
 		You can only react 1 time per comment, it can be either an upvote or downvote or none!
 		
 10. That should be all for our project, we hope you can enjoy it!
+
 
 
 
