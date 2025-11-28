@@ -91,28 +91,34 @@ http://localhost:3000
 2. From here you can actually explore the entirety of the website except for the `profile.hbs` page.
 
 3. On the landing page you see two of our main CRUDs and search (viewable from any page),
+   
 	3.1 
 		At the forefront of the page, the crowding level display for each station is shown, Northbound and Southbound.
 		note: Northbound and Southbound are entirely different in the database and are not the same, crowding level is
 		displayed with color and these colors change dynamically depending on numerical data from the database.
+
 	3.2 
 		At the very top left of every page in our website is search, you need to type in the exact name of the station
 		(not case sensitive) or even just a word of the station and not the whole thing, and you will be immediately redirected to that station's `station_detail.hbs` 
 		You can click on the x to the right of anything you type to clear the form.
+
 	3.3
 		From here you can either opt to visit the other main pages by using the navbar on the top right and view:
 		`about.hbs`, `login.hbs` and `register.hbs` respectively.
-	3.3
+
+	3.4
 		You can also click on any of the lrt platform names or circular color displays to visit `station_detail.hbs`
 		all of these views are templated and will change depending on what you click on as each station pulls data
 		from the database and displays a chart and has different status depending.
-	3.4
+
+	3.5
 		Take note we also feature historical data! You can choose to see other days of data via the dropdown menu and 
 		the '<' and '>' buttons.
-	3.5
+
+	3.6
 		**Comments** can be seen along with the historical data, in the `station_detail.hbs` to be specific. Logged in users can comment, react to themselves and to others, and edit and delete their own comments. Not logged in users can still see the comments but they are not able to interact. Admin can react and delete comments. 
 		
-4. Let's register, go on and click the "REGISTER" button on the top right of the webpage to visit `register.hbs`
+5. Let's register, go on and click the "REGISTER" button on the top right of the webpage to visit `register.hbs`
 	4.1
 		Input any username (no requirements as long as unique)
 		Input your password (there is a Weak, Good, and Strong password defined in the website, password needs to be good or strong)
@@ -120,7 +126,7 @@ http://localhost:3000
 	4.2
 		After registering, your profile and details will be saved in the database and you can now head on to `login.hbs`
 		
-5. Let's login, `login.hbs` is most easily accessed through the top right navbar.
+6. Let's login, `login.hbs` is most easily accessed through the top right navbar.
 	5.1
 		Input your login details as you previously registered, it can also be any of the sample data made prior.
 		This will automatically redirect you to `profile.hbs` when successful.
@@ -161,5 +167,6 @@ and reasoning taken from our CBINOV3 needfinding study.
 		You can only react 1 time per comment, it can be either an upvote or downvote or none!
 		
 9. That should be all for our project, we hope you can enjoy it!
+
 
 
