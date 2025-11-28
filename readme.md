@@ -149,6 +149,7 @@ http://localhost:3000
 		This will automatically redirect you to `profile.hbs` when successful.
 		
 	5.2 These are the pre made account credentials we made:
+
 		Username: admin
 		Password: Admin123
 
@@ -170,10 +171,10 @@ http://localhost:3000
 		, you can also edit different details in your profile like your description, username, and profile picture (will also change your login)
 		you can't change your username to any other pre-existing account's username (nice try!). You can delete your account!
 		
-7. You can visit the about page called `about.hbs`, it's just cute info about our project with a lot of justification
+8. You can visit the about page called `about.hbs`, it's just cute info about our project with a lot of justification
 and reasoning taken from our CBINOV3 needfinding study.
 
-8. Now that you're logged in, you can now head on back to `index.hbs` via the navbar and clicking "HOME".
+9. Now that you're logged in, you can now head on back to `index.hbs` via the navbar and clicking "HOME".
 	7.1 
 		You'll now be able to react and comment! Cool!!!
 	7.2 
@@ -183,7 +184,8 @@ and reasoning taken from our CBINOV3 needfinding study.
 	7.4
 		You can only react 1 time per comment, it can be either an upvote or downvote or none!
 		
-9. That should be all for our project, we hope you can enjoy it!
+10. That should be all for our project, we hope you can enjoy it!
+
 
 
 
