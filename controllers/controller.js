@@ -72,8 +72,7 @@ const controller = {
                 };
             }).reverse(); 
 
-            // Fetch Recent Activity
-            // Get the 10 most recent comments to show "what's happening now"
+            // Fetch Comments
             let commentData = await Comment.find({}).sort({ timestamp: -1 }).limit(10).lean();
 
             // Handle UI messages
@@ -128,5 +127,6 @@ const controller = {
         });
     }
 };
+
 
 module.exports = controller;
