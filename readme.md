@@ -145,12 +145,12 @@ http://localhost:3000
 		`profile.hbs` is your main view for all your profile details, you'll be able to view details like your badges (currently only assignable via database)
 		, you can also see your profile picture
 		, you can also edit different details in your profile like your description, username, and profile picture (will also change your login)
-		you can't change your username to any other pre-existing account's username (nice try!).
+		you can't change your username to any other pre-existing account's username (nice try!). You can delete your account!
 		
-6. You can visit the about page called `about.hbs`, it's just cute info about our project with a lot of justification
+7. You can visit the about page called `about.hbs`, it's just cute info about our project with a lot of justification
 and reasoning taken from our CBINOV3 needfinding study.
 
-7. Now that you're logged in, you can now head on back to `index.hbs` via the navbar and clicking "HOME".
+8. Now that you're logged in, you can now head on back to `index.hbs` via the navbar and clicking "HOME".
 	7.1 
 		You'll now be able to react and comment! Cool!!!
 	7.2 
@@ -160,5 +160,6 @@ and reasoning taken from our CBINOV3 needfinding study.
 	7.4
 		You can only react 1 time per comment, it can be either an upvote or downvote or none!
 		
-8. That should be all for our project, we hope you can enjoy it!
+9. That should be all for our project, we hope you can enjoy it!
+
 
