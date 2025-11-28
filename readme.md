@@ -72,6 +72,23 @@ Continue reading if you want to run it locally.
 ### 2. Install Dependencies
 In the project's root directory, open up a CMD and run `npm install` to download the dependencies from package.json
 
+### NPM Packages Used
+Run this command to install all of this
+ **npm install bcrypt dotenv express express-session hbs moment mongodb mongoose multer node sharp**
+ 
+	"bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "hbs": "^4.2.0",
+    "moment": "^2.30.1",
+    "mongodb": "^7.0.0",
+    "mongoose": "^8.19.3",
+    "multer": "^2.0.2",
+    "node": "^25.1.0",
+    "server.js": "^1.0.0",
+    "sharp": "^0.34.5"
+	
 ### 3. Run The Server
 We should now be able to run the server. To do this, run the command `node server.js`. Upon running this command
 your cmd should display that your database is connected `✅ MongoDB Connected Successfully!` 
@@ -167,6 +184,7 @@ and reasoning taken from our CBINOV3 needfinding study.
 		You can only react 1 time per comment, it can be either an upvote or downvote or none!
 		
 9. That should be all for our project, we hope you can enjoy it!
+
 
 
 
