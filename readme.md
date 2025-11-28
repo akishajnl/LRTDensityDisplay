@@ -70,22 +70,36 @@ If you also wish to deploy this project on render, follow these steps:
 3.  Connect Repo: Paste https://github.com/akishajnl/LRTDensityDisplay/tree/main to connect to this repository
 4.  Configure Settings:
       4.1. Name: Give it a name (e.g., lrt-crowd-density).
+    
       4.2. Region: Choose Singapore (closest to the Philippines for better speed).
+    
       4.3. Branch: main
+    
       4.4. Root Directory: Leave blank
+    
       4.5. Runtime: Node
+    
       4.6. Build Command: npm install (default is correct).
+    
       4.7. Start Command: node server.js
+    
       4.8. Instance Type: Select "Free".
-5. Configure Environment Variables:
+    
+6. Configure Environment Variables:
 	5.1. Add a variable:
+   
    		Key: MONGO_URI
+   
    		Value: mongodb+srv://lrtuser:lrtuser@cbapdev.wxi3coi.mongodb.net/
+   
    5.2. Add a variable:
+   
    		Key: TZ
+   
    		Value: Asia/Manila
-6. Create Web Service!
-7. Wait for it to run and deploy and access the website on thw link it will provide!
+   
+8. Create Web Service!
+9. Wait for it to run and deploy and access the website on thw link it will provide!
 ---
 
 ## Setup and Installation On Localhost
@@ -207,6 +221,7 @@ and reasoning taken from our CBINOV3 needfinding study.
 		You can only react 1 time per comment, it can be either an upvote or downvote or none!
 		
 10. That should be all for our project, we hope you can enjoy it!
+
 
 
 
