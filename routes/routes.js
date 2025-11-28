@@ -40,6 +40,9 @@ router.get('/profile', profileController.getProfilePage);
 // BEFORE the request reaches our profileController.
 router.post('/profile', upload.single('avatar'), profileController.postProfile);
 
+//Delete Account
+router.post('/profile/delete', profileController.deleteAccount);
+
 // Station Details
 // The ':name' parameter makes this dynamic, allowing one route handler
 // to serve every station page (e.g., /station/Baclaran, /station/Monumento)
@@ -50,5 +53,6 @@ router.post('/comment', commentController.postComment);
 router.post('/comment/react', commentController.postReaction); // API endpoint for AJAX votes
 router.post('/comment/delete', commentController.deleteComment);
 router.post('/comment/edit', commentController.editComment);
+
 
 module.exports = router;
