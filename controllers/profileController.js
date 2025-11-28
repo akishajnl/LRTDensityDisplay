@@ -120,7 +120,32 @@ const profileController = {
             }
             return res.redirect('/profile?error=update');
         }
+    },
+
+     deleteAccount: async (req, res) => {
+        if (!req.session.user) return res.redirect('/login');
+        
+        try {
+            const userId = req.session.user._id;
+
+            // 1. Delete the User from Database
+            await User.findByIdAndDelete(userId);
+
+            // 2. Destroy the Session (Log them out)
+            req.session.destroy((err) => {
+                if (err) {
+                    console.error('Error destroying session during delete:', err);
+                }
+                // 3. Redirect to Home
+                res.redirect('/');
+            });
+
+        } catch (error) {
+            console.error('Error deleting account:', error);
+            res.redirect('/profile?error=delete');
+        }
     }
 };
+
 
 module.exports = profileController;
