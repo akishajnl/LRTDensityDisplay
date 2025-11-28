@@ -58,22 +58,44 @@ The project follows a clean MVC structure to ensure separation of concerns.
 
 ---
 
-## Setup and Installation
-
-Follow these steps to run the website locally.
-
-### 1. Prerequisites
-
+## Setup and Installation On Render
 * There is no need to install anything since our website is deployed and can be accessed through this link:
 https://lrtwebsite.onrender.com/
 
-Continue reading if you want to run it locally. 
+If you also wish to deploy this project on render, follow these steps:
 
-### 2. Install Dependencies
-In the project's root directory, open up a CMD and run `npm install` to download the dependencies from package.json
+### 1. Set-up
+1.  Go to render.com and log in with your GitHub account.
+2.  Create New Service: Click the "New +" button and select "Web Service".
+3.  Connect Repo: Paste https://github.com/akishajnl/LRTDensityDisplay/tree/main to connect to this repository
+4.  Configure Settings:
+      4.1. Name: Give it a name (e.g., lrt-crowd-density).
+      4.2. Region: Choose Singapore (closest to the Philippines for better speed).
+      4.3. Branch: main
+      4.4. Root Directory: Leave blank
+      4.5. Runtime: Node
+      4.6. Build Command: npm install (default is correct).
+      4.7. Start Command: node server.js
+      4.8. Instance Type: Select "Free".
+5. Configure Environment Variables:
+	5.1. Add a variable:
+   		Key: MONGO_URI
+   		Value: mongodb+srv://lrtuser:lrtuser@cbapdev.wxi3coi.mongodb.net/
+   5.2. Add a variable:
+   		Key: TZ
+   		Value: Asia/Manila
+6. Create Web Service!
+7. Wait for it to run and deploy and access the website on thw link it will provide!
+---
+
+## Setup and Installation On Localhost
+Follow these steps to run the website locally.
+
+### 1. Install Dependencies
+In the project's root directory, open up a CMD and run `npm install` to download the dependencies from package.json --
 
 ### NPM Packages Used
-Run this command to install all of this
+-- or run this command to install all of this
  **npm install bcrypt dotenv express express-session hbs moment mongodb mongoose multer node sharp**
  
 	"bcrypt": "^6.0.0",
@@ -89,19 +111,19 @@ Run this command to install all of this
     "server.js": "^1.0.0",
     "sharp": "^0.34.5"
 	
-### 3. Run The Server
+### 2. Run The Server
 We should now be able to run the server. To do this, run the command `node server.js`. Upon running this command
 your cmd should display that your database is connected `✅ MongoDB Connected Successfully!` 
 (note: the check mark may or may not be there, it could also be different depending on your OS)
  and `Server running at http://localhost:3000`.
 
-### 4. Check Out The Website!
+### 3. Check Out The Website!
 Access the website by going to the URL:
 ```
 http://localhost:3000
 ```
 
-### 7. What Is The Website About? (A guide to exploration)
+### 4. What Is The Website About? (A guide to exploration)
 
 1. When first launching the website you'll be greeted by the landing page `index.hbs`
 
@@ -185,6 +207,7 @@ and reasoning taken from our CBINOV3 needfinding study.
 		You can only react 1 time per comment, it can be either an upvote or downvote or none!
 		
 10. That should be all for our project, we hope you can enjoy it!
+
 
 
 
