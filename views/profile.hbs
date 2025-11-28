@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LRT Density - User Profile</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="/styles.css">
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-        
+
         /* extending Tailwind config to add custom colors specific to the app theme */
         tailwind.config = {
             theme: {
@@ -30,21 +28,17 @@
                 }
             }
         }
-
-        
-        /* Dark gradient background for the whole page */
+         /* Dark gradient background for the whole page */
         .profile-bg {
             background-color: var(--secondary-color);
             background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.9) 100%);
         }
-        
-        /* The main container for user details */
+           /* The main container for user details */
         .profile-card {
             background-color: #1f2937;
             border: 1px solid rgba(75, 85, 99, 0.3);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         }
-        
         /* Helper class to make input fields look like normal text when editing tags/badges */
         .input-as-text {
             background-color: transparent;
@@ -52,7 +46,7 @@
             padding: 0;
             margin: 0;
             width: 100%;
-            display: none; /* Hidden by default until edit mode is triggered */
+            display: none;  /* Hidden by default until edit mode is triggered */
         }
         .input-as-text:focus {
             outline: none;
@@ -60,7 +54,7 @@
         }
     </style>
 </head>
-<body class="profile-bg min-h-screen pt-20 flex flex-col items-center">
+<body class="profile-bg min-h-screen pt-20 flex flex-col items-center relative">
 
     <header class="header-nav fixed w-full top-0"> 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-3">
@@ -77,23 +71,21 @@
                     </button>
                 </div>
             </div>
-            
             <nav id="nav-links" class="flex items-center space-x-6">
-                <a href="/" class="text-white font-semibold hover:text-orange-400 transition-colors">HOME</a>
-                <a href="/about" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">ABOUT</a>
-                
-                {{#if user}}
-                <a href="/profile" class="bg-green-500 hover:bg-green-600 text-black font-extrabold py-2 px-4 rounded-full transition-all duration-300 shadow-lg hidden sm:block">PROFILE</a>
-                <a href="/logout" class="text-red-400 font-semibold hover:text-red-500 transition-colors hidden sm:block">LOG OUT</a>
-                {{else}}
-                <a href="/login" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">LOG IN</a>
-                <a href="/register" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">REGISTER</a>
-                {{/if}}
-            </nav>
+				<a href="/" class="text-white font-semibold hover:text-orange-400 transition-colors">HOME</a>
+				<a href="/about" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">ABOUT</a>
+				{{#if user}}
+				<a href="/profile" class="bg-green-500 hover:bg-green-600 text-black font-extrabold py-2 px-4 rounded-full transition-all duration-300 shadow-lg hidden sm:block">PROFILE</a>
+				<a href="/logout" class="text-red-400 font-semibold hover:text-red-500 transition-colors hidden sm:block">LOG OUT</a>
+				{{else}}
+				<a href="/login" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">LOG IN</a>
+				<a href="/register" class="text-white font-semibold hover:text-orange-400 transition-colors hidden sm:block">REGISTER</a>
+				{{/if}}
+			</nav>
         </div>
     </header>
     
-    <main class="w-full max-w-xl px-4 pt-16">
+    <main class="w-full max-w-xl px-4 pt-16 mb-20">
 
         {{#if errorMessage}}
             <div class="bg-red-900/80 border border-red-500 text-white px-4 py-3 rounded-lg mb-6 text-center font-semibold shadow-lg backdrop-blur-sm">
@@ -101,7 +93,7 @@
             </div>
         {{/if}}
         
-        <form id="profile-form" action="/profile" method="POST" enctype="multipart/form-data" class="profile-card rounded-xl mt-8 mb-12 text-white overflow-hidden shadow-2xl">
+        <form id="profile-form" action="/profile" method="POST" enctype="multipart/form-data" class="profile-card rounded-xl mt-8 mb-8 text-white overflow-hidden shadow-2xl">
 
             <div class="h-28 bg-primary/70 relative">
                 <div class="absolute -bottom-10 left-4 group cursor-pointer" id="avatar-container">
@@ -173,20 +165,104 @@
 
             </div>
         </form>
+
+        <div class="mt-8 pt-8 border-t border-red-900/50 w-full flex flex-col items-center">
+            <h3 class="text-red-500 font-bold text-lg mb-2">Danger Zone</h3>
+            <button 
+                onclick="openDeleteModal()"
+                class="bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-800 font-bold py-3 px-6 rounded-lg transition-all duration-300 flex items-center space-x-2 w-full sm:w-auto justify-center"
+            >
+                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                <span>Delete Account</span>
+            </button>
+        </div>
     </main>
+
+    <div id="delete-modal" class="fixed inset-0 bg-black/90 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-gray-900 border-2 border-red-600 rounded-xl p-6 max-w-md w-full shadow-2xl transform scale-100 transition-all">
+            <div class="flex items-center space-x-3 mb-4 text-red-500">
+                <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+                <h2 class="text-2xl font-black uppercase">Delete Account?</h2>
+            </div>
+            
+            <p class="text-gray-300 mb-6">
+                This action is <span class="font-bold text-white">permanent</span> and cannot be undone. 
+                All your profile data will be erased.
+            </p>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-400 mb-2">
+                    Type your username <span class="text-white font-mono bg-gray-800 px-1 rounded">{{user.username}}</span> to confirm:
+                </label>
+                <input 
+                    type="text" 
+                    id="delete-confirm-input" 
+                    class="w-full px-4 py-3 bg-black border border-gray-700 rounded-lg text-white focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-colors"
+                    placeholder="Enter username"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="flex space-x-3">
+                <button onclick="closeDeleteModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                    Cancel
+                </button>
+                
+                <form action="/profile/delete" method="POST" class="flex-1">
+                    <button 
+                        type="submit" 
+                        id="final-delete-btn" 
+                        disabled
+                        class="w-full bg-red-900 text-red-300 font-bold py-3 px-4 rounded-lg cursor-not-allowed opacity-50 transition-all"
+                    >
+                        Delete It
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Render icons
+               // Render icons
             lucide.createIcons();
-            
+
             // Listen for search enter key
             document.getElementById('search-input').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter' && this.value.trim() !== '') {
                     window.location.href = `/search?query=${encodeURIComponent(this.value.trim())}`;
                 }
             });
+            
+            // DELETE ACCOUNT LOGIC
+            const confirmInput = document.getElementById('delete-confirm-input');
+            const deleteBtn = document.getElementById('final-delete-btn');
+            const targetUsername = "{{user.username}}"; // Handled by Handlebars
+
+            confirmInput.addEventListener('input', function() {
+                if (this.value === targetUsername) {
+                    // Enable Button
+                    deleteBtn.disabled = false;
+                    deleteBtn.classList.remove('bg-red-900', 'text-red-300', 'cursor-not-allowed', 'opacity-50');
+                    deleteBtn.classList.add('bg-red-600', 'hover:bg-red-700', 'text-white', 'cursor-pointer', 'shadow-lg', 'shadow-red-900/50');
+                } else {
+                    // Disable Button
+                    deleteBtn.disabled = true;
+                    deleteBtn.classList.add('bg-red-900', 'text-red-300', 'cursor-not-allowed', 'opacity-50');
+                    deleteBtn.classList.remove('bg-red-600', 'hover:bg-red-700', 'text-white', 'cursor-pointer', 'shadow-lg', 'shadow-red-900/50');
+                }
+            });
         });
+
+        function openDeleteModal() {
+            document.getElementById('delete-modal').classList.remove('hidden');
+            document.getElementById('delete-confirm-input').value = '';
+            document.getElementById('delete-confirm-input').focus();
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
 
         // Simple logout handler
         function logout() {
@@ -225,7 +301,7 @@
                     }
                 }
             });
-            
+
             // Toggle Main Username Display vs Input
             document.getElementById('username-display').classList.toggle('hidden', isEditMode);
             document.getElementById('username-input').classList.toggle('hidden', !isEditMode);
@@ -236,7 +312,7 @@
             document.getElementById('cancel-button').classList.toggle('hidden', !isEditMode);
         }
 
-        // Image Preview Logic
+         // Image Preview Logic
         // When user selects a file, immediately show it on the <img> tag
         function previewImage(input) {
             if (input.files && input.files[0]) {
@@ -248,7 +324,7 @@
             }
         }
         
-        // Clear search helper
+        // Clear search
         function clearSearch() { 
             document.getElementById('search-input').value = '';
         }
